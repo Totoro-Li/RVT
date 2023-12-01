@@ -7,6 +7,8 @@ os.environ["MKL_NUM_THREADS"] = "1"
 os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
 os.environ["NUMEXPR_NUM_THREADS"] = "1"
 
+PRETRAINED_MODEL_PATH = 'pretrained/pr.pt'
+
 import torch
 
 torch.multiprocessing.set_sharing_strategy('file_system')
@@ -28,6 +30,16 @@ from data.utils.types import DatasetSamplingMode
 from loggers.utils import get_wandb_logger, get_ckpt_path
 from modules.utils.fetch import fetch_data_module, fetch_model_module
 
+from models.pretrained.ours_model.ours_model_finetune import vit_patch16_small
+
+def load_pretrained_model(model_path, in_chans, mask_ratio):
+    """
+    Load the pre-trained model.
+    """
+    model = vit_patch16_small(in_chans, mask_ratio)  # Use appropriate model as per your configuration
+    model.load_state_dict(torch.load(model_path))
+    model.eval()
+    return model
 
 @hydra.main(config_path='config', config_name='train', version_base='1.2')
 def main(config: DictConfig):
